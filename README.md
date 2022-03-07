@@ -1,7 +1,5 @@
 # Drink Ordering System
-
-visit- https://projectworlds.in/php-projects/Drink-ordering-system-project-in-php/
-
+Fabiolla, Elton and Carolina check how to install de db, i will try to get it online
 How To Install -
 ---------
 
