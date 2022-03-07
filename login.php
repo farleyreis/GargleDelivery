@@ -1,3 +1,14 @@
+
+<!-- === 
+Applied Technology Group Project 
+
+Carolina
+Elton
+Fabiolla
+Farley Reis 2019334
+
+
+======= -->
 <?php  
 session_start(); 
 if(isset($_SESSION['admin_sid']) || isset($_SESSION['customer_sid']))

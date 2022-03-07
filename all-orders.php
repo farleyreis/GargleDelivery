@@ -1,3 +1,14 @@
+
+<!-- ======= Header 
+Applied Technology Group Project 
+
+Carolina
+Elton
+Fabiolla
+Farley Reis 2019334
+
+
+======= -->
 <?php
 // include 'includes/connect.php';
 	if($_SESSION['admin_sid']==session_id())
