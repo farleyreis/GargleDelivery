@@ -1,10 +1,10 @@
 <!-- =======  
 Applied Technology Group Project 
 
-Carolina
-Elton
+Carolina Teixeira - 2019289
+Elton Souza - 
 Fabiolla
-Farley Reis 2019334
+Farley Reis - 2019334
 
 
 ======= -->
