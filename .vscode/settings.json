@@ -7,24 +7,11 @@
             "previewLimit": 50,
             "server": "localhost",
             "port": 8889,
-            "askForPassword": true,
-            "driver": "MySQL",
-            "name": "Mysqlcon",
-            "database": "GargleDelivery",
-            "username": "root"
-        },
-        {
-            "mysqlOptions": {
-                "authProtocol": "default"
-            },
-            "previewLimit": 50,
-            "server": "localhost",
-            "port": 8889,
-            "askForPassword": true,
             "driver": "MySQL",
             "name": "Drink",
             "username": "root",
-            "database": "Drink"
+            "database": "food",
+            "password": ""
         },
         {
             "mysqlOptions": {
@@ -33,11 +20,11 @@
             "previewLimit": 50,
             "server": "localhost",
             "port": 8889,
-            "askForPassword": true,
             "driver": "MySQL",
-            "name": "teste1",
-            "database": "Drink",
-            "username": "root"
+            "name": "Drink2",
+            "database": "food",
+            "username": "food.users",
+            "password": ""
         }
     ]
 }
