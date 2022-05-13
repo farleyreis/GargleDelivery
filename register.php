@@ -11,7 +11,9 @@ Farley Reis 2019334
 ======= -->
 <?php  
 session_start(); 
-if(isset($_SESSION['admin_sid']) || isset($_SESSION['customer_sid']))
+include 'includes/config.php';
+
+if(isset($_SESSION['admin_sid']) || isset($_SESSION['customer_sid']) ||isset($_SESSION['seller_sid']) )
 {
 	header("location:index.php");
 }
@@ -100,11 +102,14 @@ else{
   <!-- End Page Loading -->
 
 
-
+ 
   <div id="login-page" class="row">
     <div class="col s12 z-depth-4 card-panel">
-      <form class="formValidate" id="formValidate" method="post" action="routers/register-router.php" novalidate="novalidate" class="col s12">
-        <div class="row">
+    <div class="col s12 center">
+              <img src="images/materialize-logo.png" width="100">
+            </div>
+      <form class="formValidate" id="formValidate" method="post" novalidate="novalidate" action="routers/register-router.php" enctype="multipart/form-data" class="col s12"> 
+      <div class="row">
           <div class="input-field col s12 center">
             <h4>Register</h4>
             <p class="center">Join us now!</p>
@@ -120,10 +125,18 @@ else{
         </div>
         <div class="row margin">
           <div class="input-field col s12">
+            <i class="mdi-content-mail prefix"></i>
+            <input name="email" id="email" type="email"  data-error=".errorTxt5">
+            <label for="email" class="center-align">Email</label>
+		      	<div class="errorTxt5"></div>			
+          </div>
+        </div>
+        <div class="row margin">
+          <div class="input-field col s12">
             <i class="mdi-social-person prefix"></i>
             <input name="name" id="name" type="text" data-error=".errorTxt2">
             <label for="name" class="center-align">Name</label>
-			<div class="errorTxt2"></div>			
+			      <div class="errorTxt2"></div>			
           </div>
         </div>
         <div class="row margin">
@@ -131,20 +144,47 @@ else{
             <i class="mdi-action-lock-outline prefix"></i>
             <input name="password" id="password" type="password" data-error=".errorTxt3">
             <label for="password">Password</label>
-			<div class="errorTxt3"></div>			
+			     <div class="errorTxt3"></div>			
           </div>
         </div>
         <div class="row margin">
           <div class="input-field col s12">
             <i class="mdi-communication-phone prefix"></i>
-            <input name="phone" id="phone" type="number" data-error=".errorTxt4">
+            <input name="phone" id="phone" type="text" data-error=".errorTxt4">
             <label for="phone">Phone</label>
-			<div class="errorTxt4"></div>			
+			       <div class="errorTxt4"></div>			
           </div>
-        </div>		
+        </div>
+        <div class="row margin">
+                        <div class="input-field col s12">
+                          <i class="mdi-action-home prefix"></i>
+							<textarea name="address" id="address" class="materialize-textarea" data-error=".errorTxt6"></textarea>
+							<!-- <label for="address" class="">Address</label> -->
+							<div class="errorTxt6"></div>
+                        </div>
+                      </div>		
+                      <input type="hidden" name="address_latitude" id="address_latitude">
+                      <input type="hidden" name="address_longitude" id="address_longitude">
+        <div class="row margin">
+          <div class="input-field col s12">
+            <p >Please verify your age by providing ID Photo</p>
+            <input name="idpic" id="idpic" type="file" required>
+          </div>
+        </div>
+
+         <div class="row margin">
+          <div class="input-field col s12">
+           <p> <input name="confirm21" id="confirm21" type="checkbox" style="    position: relative; 
+    left: 0; 
+    visibility: visible;" required> &nbsp;&nbsp;  Yes, I am above 21 years old</p>
+          </div>
+        </div>
+
+
         <div class="row">
           <div class="input-field col s12">
-			<a href="javascript:void(0);" onclick="document.getElementById('formValidate').submit();" class="btn waves-effect waves-light col s12">Login</a>
+            <input type="submit" value="Register" class="btn col s12">
+			<!-- <a href="javascript:void(0);" onclick="document.getElementById('formValidate').submit();" class="btn waves-effect waves-light col s12">Login</a> -->
           </div>
           <div class="input-field col s12">
             <p class="margin center medium-small sign-up">Already have an account? <a href="login.php">Login</a></p>
@@ -173,7 +213,30 @@ else{
     <script type="text/javascript" src="js/plugins.min.js"></script>
     <!--custom-script.js - Add your own theme custom JS-->
     <script type="text/javascript" src="js/custom-script.js"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=<?=MAP_API_KEY?>&libraries=places&callback=initMap"></script>
+   
+   <script type="text/javascript">
+     function initMap()
+     {
+       const input = document.getElementById("address");
+       const options = {
+         types: ["geocode"],
+       };
+       const autocomplete = new google.maps.places.Autocomplete(input, options);
+
+       autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          $("#address_latitude").val(place.geometry.viewport.Ab.h);
+          $("#address_longitude").val(place.geometry.viewport.Va.h);
+        });
+     }
+   </script>
+
     <script type="text/javascript">
+      $.validator.addMethod("password_check", function(value, element) {
+          return this.optional(element) || /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+])[0-9a-zA-Z!@#$%^&*()_+]{5,}$/i.test(value);
+      }, "Password must consist of 1 Upper Case, 1 Small Case, 1 number and 1 Symbol");
+      
     $("#formValidate").validate({
         rules: {
             username: {
@@ -184,14 +247,26 @@ else{
                 required: true,
                 minlength: 5				
             },
-			password: {
-				required: true,
-				minlength: 5
-			},
+            email: {
+              required: true,
+              minlength:5
+            },
+            password: {
+              required: true,
+              minlength: 5,
+              password_check: true
+            },
             phone: {
-				required: true,
-				minlength: 4
-			},
+              required: true,
+              minlength: 4
+            },
+            idpic:{
+              required:true,
+            },
+            address: {
+              required: true,
+              minlength: 10
+            },
         },
         messages: {
             username: {
@@ -200,6 +275,10 @@ else{
             },
             name: {
                 required: "Enter name",
+                minlength: "Minimum 5 characters are required."
+            },
+            email: {
+                required: "Enter email",
                 minlength: "Minimum 5 characters are required."
             },
 			password: {

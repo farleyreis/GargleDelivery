@@ -17,15 +17,7 @@ include '../includes/connect.php';
 			$sql = "UPDATE users SET deleted = '$value' WHERE id = $key;";
 			$con->query($sql);
 		}		
-		if(preg_match("/[0-9]+_balance/",$key)){
-			$key = strtok($key, '_');
-			$result = mysqli_query($con,"SELECT * from wallet WHERE customer_id = $key;");
-			if($row = mysqli_fetch_array($result)){
-				$wallet_id = $row['id'];
-				$sql = "UPDATE wallet_details SET balance = '$value' WHERE wallet_id = $wallet_id;";
-				$con->query($sql);
-			}
-		}			
+					
 	}
 header("location: ../users.php");
 ?>

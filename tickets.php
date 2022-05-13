@@ -10,8 +10,7 @@ Farley Reis 2019334
 
 ======= -->
 <?php
-// include 'includes/connect.php';
-// include 'includes/wallet.php';
+  include 'includes/connect.php';
 
 	if($_SESSION['customer_sid']==session_id())
 	{
@@ -109,10 +108,7 @@ Farley Reis 2019334
                     <ul class="left">                      
                       <li><h1 class="logo-wrapper"><a href="index.php" class="brand-logo darken-1"><img src="images/materialize-logo.png" alt="logo"></a> <span class="logo-text">Logo</span></h1></li>
                     </ul>
-                    <ul class="right hide-on-med-and-down">                        
-                        <li><a href="#" class="waves-effect waves-block waves-light"><i class="mdi-editor-attach-money"><?php echo $balance;?></i></a>
-                        </li>
-                    </ul>					
+                    				
                 </div>
             </nav>
         </div>
@@ -180,7 +176,7 @@ Farley Reis 2019334
 									"><a href="tickets.php">All Tickets</a>
                                 </li>
 								<?php
-									$sql = mysqli_query($con, "SELECT DISTINCT status FROM tickets WHERE poster_id = $user_id AND not deleted;");
+									$sql = mysqli_query($con, "SELECT DISTINCT status FROM tickets WHERE poster_id = '{$user_id}' AND not deleted;");
 									while($row = mysqli_fetch_array($sql)){
 									if(isset($_GET['status'])){
 										$status = $row['status'];
@@ -247,14 +243,31 @@ Farley Reis 2019334
                       </div>					  
                       <div class="row">
                         <div class="input-field col s4">
-							<select name="type">
-								<option disabled selected>Choose a type</option>
-								<option value="Support">Support</option>
-								<option value="Payment">Payment</option>
-								<option value="Complaint">Complaint</option>
-								<option value="Others">Others</option>				
-							</select>
-							<label>Type</label>
+            							<select name="type">
+            								<option disabled selected>Choose a type</option>
+            								<option value="Support">Support</option>
+            								<option value="Payment">Payment</option>
+            								<option value="Complaint">Complaint</option>
+            								<option value="Others">Others</option>				
+            							</select>
+            							<label>Type</label>
+                        </div>
+
+                        <div class="input-field col s4">
+                          <select name="shopid" required>
+                            <option disabled selected >Choose a Seller</option>
+                            <?php 
+                            $sellers = mysqli_query($con,"SELECT * FROM users WHERE role = 'Seller'");
+                            while($sel = mysqli_fetch_array($sellers)){
+                              ?>
+                              <option value="<?php echo $sel['id']; ?>"><?php echo $sel['name']; ?></option>
+                              <?php
+                            }
+
+                             ?>
+
+                          </select>
+                          <label>Shop</label>
                         </div>
                       </div>					  
                       <div class="row">
@@ -293,8 +306,8 @@ Farley Reis 2019334
 									}
 									else{
 										$status = '%';
-									}			
-									$sql = mysqli_query($con, "SELECT * FROM tickets WHERE poster_id = $user_id AND status LIKE '$status' AND not deleted;");
+									}		
+									$sql = mysqli_query($con, "SELECT * FROM tickets WHERE poster_id = '{$user_id}' AND status LIKE '$status' AND not deleted;");
 									while($row = mysqli_fetch_array($sql)){								                                
 									echo'<a href="view-ticket.php?id='.$row['id'].'"class="collection-item">
                                         <div class="row">

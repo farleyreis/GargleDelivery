@@ -10,10 +10,10 @@ Farley Reis 2019334
 
 ======= -->
 <?php
-// include 'includes/connect.php';
-// include 'includes/wallet.php'; teste
+include 'includes/connect.php';
 $continue=0;
-if($_SESSION['admin_sid']==session_id())
+
+if(isset($_SESSION['admin_sid']) && $_SESSION['admin_sid']==session_id() || $_SESSION['seller_sid']==session_id())
 {
 		$ticket_id = $_GET['id'];
 		$sql1 = "SELECT * FROM tickets WHERE id = $ticket_id;";
@@ -124,10 +124,7 @@ if($continue){
                     <ul class="left">                      
                       <li><h1 class="logo-wrapper"><a href="index.php" class="brand-logo darken-1"><img src="images/materialize-logo.png" alt="logo"></a> <span class="logo-text">Logo</span></h1></li>
                     </ul>
-                    <ul class="right hide-on-med-and-down">                        
-                        <li><a href="#" class="waves-effect waves-block waves-light"><i class="mdi-editor-attach-money"><?php echo $balance;?></i></a>
-                        </li>
-                    </ul>					
+                    					
                 </div>
             </nav>
         </div>

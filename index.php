@@ -1,20 +1,25 @@
 <!-- =======  
 Applied Technology Group Project 
 
-Carolina Teixeira - 2019289
-Elton Souza - 
+Carolina
+Elton
 Fabiolla
-Farley Reis - 2019334
+Farley Reis 2019334
 
 
 ======= -->
 
 <?php
-  // include 'includes/connect.php';
-  // include 'includes/wallet.php';
+  include 'includes/connect.php';
+  include 'includes/config.php';
 
-	if($_SESSION['customer_sid']==session_id())
+	if($_SESSION['customer_sid']==session_id() && isset($_SESSION['verified']) && $_SESSION['verified']=='1')
 	{
+    $uresult = mysqli_query($con, "SELECT * FROM users where id = ".$_SESSION['user_id']."");
+while($row = mysqli_fetch_array($uresult)){
+	$user_latitude = $row['latitude'];
+	$user_longitude = $row['longitude'];
+}
 		?>
 <!DOCTYPE html>
 <html lang="en">
@@ -107,12 +112,9 @@ Farley Reis - 2019334
             <nav class="navbar-color">
                 <div class="nav-wrapper">
                     <ul class="left">                      
-                      <!-- <li><h1 class="logo-wrapper"><a href="index.php" class="brand-logo darken-1"><img src="images/materialize-logo.png" alt="logo"></a> <span class="logo-text">Logo</span></h1></li> -->
+                    <li><h1 class="logo-wrapper"><a href="index.php" class="brand-logo darken-1"><img src="images/materialize-logo.png" alt="logo"></a> <span class="logo-text">Logo</span></h1></li>
                     </ul>
-                    <ul class="right hide-on-med-and-down">                        
-                        <li><a href="#" class="waves-effect waves-block waves-light"><i class="mdi-editor-attach-money"><?php echo $balance;?></i></a>
-                        </li>
-                    </ul>					
+                    				
                 </div>
             </nav>
         </div>
@@ -157,7 +159,7 @@ Farley Reis - 2019334
 								<li><a href="orders.php">All Orders</a>
                                 </li>
 								<?php
-									$sql = mysqli_query($con, "SELECT DISTINCT status FROM orders WHERE customer_id = $user_id;");
+									$sql = mysqli_query($con, "SELECT DISTINCT status FROM orders WHERE customer_id = '{$_SESSION['customer_sid']}';");
 									while($row = mysqli_fetch_array($sql)){
                                     echo '<li><a href="orders.php?status='.$row['status'].'">'.$row['status'].'</a>
                                     </li>';
@@ -176,7 +178,7 @@ Farley Reis - 2019334
 								<li><a href="tickets.php">All Tickets</a>
                                 </li>
 								<?php
-									$sql = mysqli_query($con, "SELECT DISTINCT status FROM tickets WHERE poster_id = $user_id AND not deleted;");
+									$sql = mysqli_query($con, "SELECT DISTINCT status FROM tickets WHERE poster_id = '{$_SESSION['user_id']}' AND not deleted");
 									while($row = mysqli_fetch_array($sql)){
                                     echo '<li><a href="tickets.php?status='.$row['status'].'">'.$row['status'].'</a>
                                     </li>';
@@ -214,49 +216,43 @@ Farley Reis - 2019334
 
         <!--start container-->
         <div class="container">
-          <p class="caption">Order your Drink here.</p>
+          <p class="caption">Select your Drink Shop.</p>
           <div class="divider"></div>
-		  <form class="formValidate" id="formValidate" method="post" action="place-order.php" novalidate="novalidate">
-            <div class="row">
-              <div class="col s12 m4 l3">
-                <h4 class="header">Order Drink</h4>
-              </div>
-              <div>
-                  <table id="data-table-customer" class="responsive-table display" cellspacing="0">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Item Price/Piece</th>
-                        <th>Quantity</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
+    
+                    <div class="row">
 				<?php
-				$result = mysqli_query($con, "SELECT * FROM items where not deleted;");
+        $result = mysqli_query($con, "SELECT *, SQRT(
+          POW(69.1 * (latitude - ".$user_latitude."), 2) +
+          POW(69.1 * (".$user_longitude." - longitude) * COS(latitude / 57.3), 2)) AS distance
+      FROM users where not deleted && role='Seller' HAVING distance < ".DEFAULT_DISTANCE." ORDER BY distance");
+      
 				while($row = mysqli_fetch_array($result))
 				{
-					echo '<tr><td>'.$row["name"].'</td><td>'.$row["price"].'</td>';                      
-					echo '<td><div class="input-field col s12"><label for='.$row["id"].' class="">Quantity</label>';
-					echo '<input id="'.$row["id"].'" name="'.$row['id'].'" type="text" data-error=".errorTxt'.$row["id"].'"><div class="errorTxt'.$row["id"].'"></div></td></tr>';
+          
+        echo '
+        <div class="col m3 s4">
+          <div class="card">
+            <div class="card-image">
+              <img src="images/store/logo/'.$row['image'].'">
+              <span class="card-title black">'.$row['name'].'</span>
+            </div>
+            
+            <div class="card-action">
+            <a href="store-items.php?store_id='.$row['id'].'">Shop</a>
+            </div>
+          </div>
+        </div>
+        ';
+
 				}
 				?>
-                    </tbody>
-</table>
+
+</div>
               </div>
-			  <div class="input-field col s12">
-              <i class="mdi-editor-mode-edit prefix"></i>
-              <textarea id="description" name="description" class="materialize-textarea"></textarea>
-              <label for="description" class="">Any note(optional)</label>
-			  </div>
+			  
 			  <div>
-			  <div class="input-field col s12">
-                              <button class="btn cyan waves-effect waves-light right" type="submit" name="action">Order
-                                <i class="mdi-content-send right"></i>
-                              </button>
-                            </div>
+			 
             </div>
-			</form>
             <div class="divider"></div>
             
           </div>

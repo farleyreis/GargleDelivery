@@ -10,8 +10,9 @@ Farley Reis 2019334
 
 ======= -->
 <?php
-// include 'includes/connect.php';
-// include 'includes/wallet.php';
+include 'includes/connect.php';
+include 'includes/config.php';
+
 
 	if($_SESSION['customer_sid']==session_id())
 	{
@@ -67,10 +68,7 @@ Farley Reis 2019334
                     <ul class="left">                      
                       <li><h1 class="logo-wrapper"><a href="index.php" class="brand-logo darken-1"><img src="images/materialize-logo.png" alt="logo"></a> <span class="logo-text">Logo</span></h1></li>
                     </ul>
-                    <ul class="right hide-on-med-and-down">                        
-                        <li><a href="#"  class="waves-effect waves-block waves-light"><i class="mdi-editor-attach-money"><?php echo $balance;?></i></a>
-                        </li>
-                    </ul>						
+                    					
                 </div>
             </nav>
         </div>
@@ -119,7 +117,7 @@ Farley Reis 2019334
 									"><a href="orders.php">All Orders</a>
                                 </li>
 								<?php
-									$sql = mysqli_query($con, "SELECT DISTINCT status FROM orders  WHERE customer_id = $user_id;;");
+									$sql = mysqli_query($con, "SELECT DISTINCT status FROM orders  WHERE customer_id = '".$_SESSION['user_id']."';");
 									while($row = mysqli_fetch_array($sql)){
 									if(isset($_GET['status'])){
 										$status = $row['status'];
@@ -141,7 +139,7 @@ Farley Reis 2019334
 								<li><a href="tickets.php">All Tickets</a>
                                 </li>
 								<?php
-									$sql = mysqli_query($con, "SELECT DISTINCT status FROM tickets WHERE poster_id = $user_id AND not deleted;");
+									$sql = mysqli_query($con, "SELECT DISTINCT status FROM tickets WHERE poster_id = '{$_SESSION['customer_sid']}' AND not deleted;");
 									while($row = mysqli_fetch_array($sql)){
                                     echo '<li><a href="tickets.php?status='.$row['status'].'">'.$row['status'].'</a>
                                     </li>';
@@ -191,7 +189,7 @@ Farley Reis 2019334
 					else{
 						$status = '%';
 					}
-					$sql = mysqli_query($con, "SELECT * FROM orders WHERE customer_id = $user_id AND status LIKE '$status';;");
+					$sql = mysqli_query($con, "SELECT * FROM orders WHERE customer_id = '".$_SESSION['user_id']."' AND status LIKE '$status';;");
 					echo '              <div class="row">
                 <div>
                     <h4 class="header">List</h4>
@@ -208,6 +206,14 @@ Farley Reis 2019334
                               <p><strong>Status:</strong> '.($status=='Paused' ? 'Paused <a  data-position="bottom" data-delay="50" data-tooltip="Please contact administrator for further details." class="btn-floating waves-effect waves-light tooltipped cyan">    ?</a>' : $status).'</p>							  
 							  '.(!empty($row['description']) ? '<p><strong>Note: </strong>'.$row['description'].'</p>' : '').'						                               
 							  <a href="#" class="secondary-content"><i class="mdi-action-grade"></i></a>
+                              <iframe
+                                width="450"
+                                height="250"
+                                frameborder="0" style="border:0"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                src="https://www.google.com/maps/embed/v1/place?key='.MAP_API_KEY.'&q='.$row['address'].'"
+                                allowfullscreen>
+                                </iframe>
                               </li>';
 						$order_id = $row['id'];
 						$sql1 = mysqli_query($con, "SELECT * FROM order_details WHERE order_id = $order_id;");
@@ -227,12 +233,25 @@ Farley Reis 2019334
                             <span>'.$row1['quantity'].' Pieces</span>
                             </div>
                             <div class="col s3">
-                            <span>Rs. '.$row1['price'].'</span>
+                            <span>&euro;  '.$row1['price'].'</span>
                             </div>
                             </div>
                             </li>';
 							$id = $row1['order_id'];
 						}
+            echo '<li class="collection-item">
+                            <div class="row">
+                                <div class="col s7">
+                                    <p class="collections-title"> Delivery Fee. </p>
+                                </div>
+                                <div class="col s2">
+                                    <span>&nbsp;</span>
+                                </div>
+                                <div class="col s3">
+                                    <span><strong>&euro;  '.$row['delivery_fee'].'</strong></span>
+                                </div>
+                            </div>
+                        </li>';
 								echo'<li class="collection-item">
                                         <div class="row">
                                             <div class="col s7">
@@ -242,7 +261,7 @@ Farley Reis 2019334
 											<span> </span>
                                             </div>
                                             <div class="col s3">
-                                                <span><strong>Rs. '.$row['total'].'</strong></span>
+                                                <span><strong>&euro;  '.$row['total'].'</strong></span>
                                             </div>';
 								if(!preg_match('/^Cancelled/', $status)){
 									if($status != 'Delivered'){
@@ -274,7 +293,7 @@ Farley Reis 2019334
 
   </div>
   <!-- END MAIN -->
-
+  
 
 
   <!-- //////////////////////////////////////////////////////////////////////////// -->

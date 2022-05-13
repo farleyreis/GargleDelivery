@@ -10,7 +10,7 @@ Farley Reis 2019334
 
 ======= -->
 <?php
-// include 'includes/connect.php';
+include 'includes/connect.php';
 
 
 	if($_SESSION['admin_sid']==session_id())
@@ -224,11 +224,11 @@ Farley Reis 2019334
                         <th data-field="name">Name</th>
                         <th data-field="price">Email</th>
                         <th data-field="price">Contact</th>
-                        <th data-field="price">Address</th>	
+                        <!-- <th data-field="price">Address</th>	 -->
                         <th data-field="price">Role</th>
                         <th data-field="price">Verified</th>
                         <th data-field="price">Enable</th>
-                        <th data-field="price">Wallet</th>						
+                        <th></th>
                       </tr>
                     </thead>
 
@@ -240,9 +240,10 @@ Farley Reis 2019334
 					echo '<tr><td>'.$row["name"].'</td>';
 					echo '<td>'.$row["email"].'</td>';
 					echo '<td>'.$row["contact"].'</td>';   
-					echo '<td>'.$row["address"].'</td>';      					
+					// echo '<td>'.$row["address"].'</td>';      					
 					echo '<td><select name="'.$row['id'].'_role">
                       <option value="Administrator"'.($row['role']=='Administrator' ? 'selected' : '').'>Administrator</option>
+                      <option value="Seller"'.($row['role']=='Seller' ? 'selected' : '').'>Seller</option>
                       <option value="Customer"'.($row['role']=='Customer' ? 'selected' : '').'>Customer</option>
                     </select></td>';
 					echo '<td><select name="'.$row['id'].'_verified">
@@ -253,16 +254,9 @@ Farley Reis 2019334
                       <option value="1"'.($row['deleted'] ? 'selected' : '').'>Disable</option>
                       <option value="0"'.(!$row['deleted'] ? 'selected' : '').'>Enable</option>
                     </select></td>';
-					$key = $row['id'];
-					$sql = mysqli_query($con,"SELECT * from wallet WHERE customer_id = $key;");
-					if($row1 = mysqli_fetch_array($sql)){
-						$wallet_id = $row1['id'];
-						$sql1 = mysqli_query($con,"SELECT * from wallet_details WHERE wallet_id = $wallet_id;");
-						if($row2 = mysqli_fetch_array($sql1)){
-							$balance = $row2['balance'];
-						}
-					}
-					echo '<td><label for="balance">Balance</label><input id="balance" name="'.$row['id'].'_balance" value="'.$balance.'" type="number" data-error=".errorTxt01"><div class="errorTxt01"></div></td></tr>'; 					
+					// $key = $row['id'];
+          echo '<td><a class="waves-effect waves-light btn" href="update-user.php?user_id='.$row['id'].'"><i class="material-icons left">edit</i></a></td>';
+					
 				}
 				?>
                     </tbody>

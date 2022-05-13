@@ -10,7 +10,7 @@ Farley Reis 2019334
 
 ======= -->
 <?php
-// include 'includes/connect.php';
+include 'includes/connect.php';
 
 
 	if($_SESSION['admin_sid']==session_id())
@@ -262,38 +262,7 @@ Farley Reis 2019334
                             </div>
             </div>
 			</form>
-		  <form class="formValidate" id="formValidate1" method="post" action="routers/add-item.php" novalidate="novalidate">
-            <div class="row">
-              <div class="col s12 m4 l3">
-                <h4 class="header">Add Item</h4>
-              </div>
-              <div>
-<table>
-                    <thead>
-                      <tr>
-                        <th data-field="id">Name</th>
-                        <th data-field="name">Item Price/Piece</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-				<?php
-					echo '<tr><td><div class="input-field col s12"><label for="name">Name</label>';
-					echo '<input id="name" name="name" type="text" data-error=".errorTxt01"><div class="errorTxt01"></div></td>';					
-					echo '<td><div class="input-field col s12 "><label for="price" class="">Price</label>';
-					echo '<input id="price" name="price" type="text" data-error=".errorTxt02"><div class="errorTxt02"></div></td>';                   
-					echo '<td></tr>';
-				?>
-                    </tbody>
-</table>
-              </div>
-			  <div class="input-field col s12">
-                              <button class="btn cyan waves-effect waves-light right" type="submit" name="action">Add
-                                <i class="mdi-content-send right"></i>
-                              </button>
-                            </div>
-            </div>
-			</form>			
+		 		
             <div class="divider"></div>
             
           </div>

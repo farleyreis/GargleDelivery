@@ -27,5 +27,9 @@ include '../includes/connect.php';
 			}
 		}
 	}
-header("location: ../admin-page.php");
+if(isset($_SESSION['seller_sid'])){
+	header("location: ../seller-page.php");
+}elseif(isset($_SESSION['admin_sid'])){
+	header("location: ../admin-page.php");
+}
 ?>

@@ -12,7 +12,7 @@ function number($length) {
 }
 
 $username = $_POST['username'];
-$password = $_POST['password'];
+$password = password_hash($_POST['password'],PASSWORD_BCRYPT);
 $name = $_POST['name'];
 $email = $_POST['email'];
 $contact = $_POST['contact'];
@@ -23,14 +23,7 @@ $deleted = $_POST['deleted'];
 $sql = "INSERT INTO users (username, password, name, email, contact, address, role, verified, deleted) VALUES ('$username', '$password', '$name', '$email', $contact, '$address', '$role', $verified, $deleted)";
 if($con->query($sql)==true){
 $user_id =  $con->insert_id;
-$sql = "INSERT INTO wallet(customer_id) VALUES ($user_id)";
-if($con->query($sql)==true){
-	$wallet_id =  $con->insert_id;
-	$cc_number = number(16);
-	$cvv_number = number(3);
-	$sql = "INSERT INTO wallet_details(wallet_id, number, cvv) VALUES ($wallet_id, $cc_number, $cvv_number)";
-	$con->query($sql);
-}	
+
 }
 header("location: ../users.php");
 ?>

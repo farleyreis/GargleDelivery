@@ -1,6 +1,5 @@
 <?php
 include '../includes/connect.php';
-include '../includes/wallet.php';
 $message = htmlspecialchars($_POST['message']);
 $ticket_id = $_POST['ticket_id'];
 $role = $_POST['role'];

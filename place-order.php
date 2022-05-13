@@ -10,8 +10,11 @@ Farley Reis 2019334
 
 ======= -->
 <?php
-// include 'includes/connect.php';
-// include 'includes/wallet.php';
+include 'includes/connect.php';
+include 'includes/config.php';
+
+
+
 $total = 0;
 	if($_SESSION['customer_sid']==session_id())
 	{
@@ -21,6 +24,8 @@ $name = $row['name'];
 $address = $row['address'];
 $contact = $row['contact'];
 $verified = $row['verified'];
+$latitude = $row['latitude'];
+$longitude = $row['longitude'];
 }
 		?>
 <!DOCTYPE html>
@@ -115,10 +120,7 @@ $verified = $row['verified'];
                     <ul class="left">                      
                       <li><h1 class="logo-wrapper"><a href="index.php" class="brand-logo darken-1"><img src="images/materialize-logo.png" alt="logo"></a> <span class="logo-text">Logo</span></h1></li>
                     </ul>
-                    <ul class="right hide-on-med-and-down">                        
-                        <li><a href="#" class="waves-effect waves-block waves-light"><i class="mdi-editor-attach-money"><?php echo $balance;?></i></a>
-                        </li>
-                    </ul>						
+                    					
                 </div>
             </nav>
         </div>
@@ -234,8 +236,8 @@ $verified = $row['verified'];
                         <div class="input-field col s12">
 							<label for="payment_type">Payment Type</label><br><br>
 							<select id="payment_type" name="payment_type">
-									<option value="Wallet" selected>Wallet</option>
-									<option value="Cash On Delivery" <?php if(!$verified) echo 'disabled';?>>Cash on Delivery</option>							
+              <option value="Cash On Delivery" <?php if(!$verified) echo 'disabled';?> selected>Cash on Delivery</option>							
+                  <option value="Card" >Card</option>
 							</select>
                         </div>
                       </div>					
@@ -247,7 +249,9 @@ $verified = $row['verified'];
 							<div class="errorTxt1"></div>
                         </div>
                       </div>
-                      <div class="row">
+                      <input type="hidden" name="address_latitude" id="address_latitude" value="<?php echo $latitude; ?>">
+                      <input type="hidden" name="address_longitude" id="address_longitude" value="<?php echo $longitude; ?>">
+                      <!-- <div class="row">
                         <div class="input-field col s12">
                           <i class="mdi-action-credit-card prefix"></i>
 							<input name="cc_number" id="cc_number" type="text" data-error=".errorTxt2" required>
@@ -262,7 +266,18 @@ $verified = $row['verified'];
 							<label for="cvv_number" class="">CVV Number</label>								
 							<div class="errorTxt3"></div>
                         </div>
-                      </div>					  
+                      </div> -->
+                      <div class="row">
+                        <div class="row">
+                            <div class="input-field col s12">
+                              <div id="card-section"></div>
+                            </div>
+                        </div>
+                      </div>
+                     
+                   
+                      <br/>
+
                       <div class="row">
                         <div class="row">
                           <div class="input-field col s12">
@@ -272,6 +287,7 @@ $verified = $row['verified'];
                           </div>
                         </div>
                       </div>
+                      
 					  <?php
 					  	foreach ($_POST as $key => $value)
 						{
@@ -306,11 +322,10 @@ $verified = $row['verified'];
         <p><strong>Name:</strong>'.$name.'</p>
 		<p><strong>Contact Number:</strong> '.$contact.'</p>
         <a href="#" class="secondary-content"><i class="mdi-action-grade"></i></a>';
-		
 	foreach ($_POST as $key => $value)
 	{
 		if($value == ''){
-			break;
+			continue;
 		}
 		if(is_numeric($key)){
 		$result = mysqli_query($con, "SELECT * FROM items WHERE id = $key");
@@ -330,7 +345,7 @@ $verified = $row['verified'];
                 <span>'.$value.' Pieces</span>
             </div>
             <div class="col s3">
-                <span>Rs. '.$price.'</span>
+                <span>&euro;  '.$price.'</span>
             </div>
         </div>
     </li>';
@@ -346,7 +361,7 @@ $verified = $row['verified'];
                 <span>&nbsp;</span>
             </div>
             <div class="col s3">
-                <span><strong>Rs. '.$total.'</strong></span>
+                <span><strong>&euro;  '.$total.'</strong></span>
             </div>
         </div>
     </li>';
@@ -408,6 +423,27 @@ $verified = $row['verified'];
     <script type="text/javascript" src="js/plugins.min.js"></script>
     <!--custom-script.js - Add your own theme custom JS-->
     <script type="text/javascript" src="js/custom-script.js"></script>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=<?=MAP_API_KEY?>&libraries=places&callback=initMap"></script>
+   
+<script type="text/javascript">
+  function initMap()
+  {
+    const input = document.getElementById("address");
+    const options = {
+      types: ["geocode"],
+    };
+    const autocomplete = new google.maps.places.Autocomplete(input, options);
+    autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          $("#address_latitude").val(place.geometry.viewport.Ab.h);
+          $("#address_longitude").val(place.geometry.viewport.Va.h);
+        });
+  }
+</script>
+
+</script>
 	<script type="text/javascript">
     $("#formValidate").validate({
         rules: {
@@ -458,12 +494,22 @@ $verified = $row['verified'];
       });
 		$('#payment_type').change(function() {
 		if ($(this).val() === 'Cash On Delivery') {
-		  $("#cc_number").prop('disabled', true);
-		  $("#cvv_number").prop('disabled', true);		  
+		  // $("#card-element").css('display', 'none');
+      document.getElementById("formValidate").removeEventListener('submit', submitStripe);
+      $("#card-section").empty();
 		}
-		if ($(this).val() === 'Wallet'){
-		  $("#cc_number").prop('disabled', false);
-		  $("#cvv_number").prop('disabled', false);	
+	
+    if ($(this).val() === 'Card'){
+      $("#card-element").css('display', 'block');	
+      var card_html = '<div id="card-element" class="form-control"></div>'+
+                        '<div id="card-errors" role="alert"></div>';
+                        $("#card-section").append(card_html);
+                        
+                        var charge= document.createElement('script');
+                        charge.src= 'js/charge.js';
+      $("#card-section").append(charge);
+
+
 		}
 		});
     </script>

@@ -11,11 +11,12 @@ Farley Reis 2019334
 ======= -->
 <?php  
 session_start(); 
-if(isset($_SESSION['admin_sid']) || isset($_SESSION['customer_sid']))
+if(isset($_SESSION['admin_sid']) || ((isset($_SESSION['customer_sid']) || isset($_SESSION['seller_sid']))  && $_SESSION['verified']))
 {
 	header("location:index.php");
 }
 else{
+  
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,8 +65,24 @@ else{
   <div id="login-page" class="row">
     <div class="col s12 z-depth-4 card-panel">
       <form method="post" action="routers/router.php" class="login-form" id="form">
+        
         <div class="row">
           <div class="input-field col s12 center">
+            <div class="center">
+              <img src="images/materialize-logo.png" width="100">
+            </div>
+            <h6 class="center green-text"><?php if(isset($_GET['success']) && !empty($_GET['success'])){
+                if($_GET['success']=='account-verified'){
+                  echo 'Your Account is Verified';
+                }
+              } ?>
+            </h6>
+            <h6 class="center red-text"><?php if(isset($_GET['error']) && !empty($_GET['error'])){
+              if($_GET['error']=='invalid-login'){
+                echo "Invalid Username/Email or Password";
+              }
+              } ?>
+            </h6>
             <p class="center login-form-text">Login for Drink Ordering System</p>
           </div>
         </div>
@@ -89,6 +106,9 @@ else{
 		  		<div class="row">
           <div class="input-field col s6 m6 l6">
             <p class="margin medium-small"><a href="register.php">Register Now!</a></p>
+          </div>
+          <div class="input-field col s6 m6 l6">
+            <p class="margin medium-small"><a href="register-seller.php">Become a partner</a></p>
           </div>         
         </div>
         </div>

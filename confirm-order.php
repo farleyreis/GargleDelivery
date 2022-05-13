@@ -10,35 +10,42 @@ Farley Reis 2019334
 
 ======= --><?php
 include 'includes/connect.php';
-include 'includes/wallet.php';
-$continue=0;
+include 'includes/config.php';
+$continue=1;
 $total = 0;
-if($_SESSION['customer_sid']==session_id())
-{
-		if($_POST['payment_type'] == 'Wallet'){
-		$_POST['cc_number'] = str_replace('-', '', $_POST['cc_number']);
-		$_POST['cc_number'] = str_replace(' ', '', $_POST['cc_number']); 
-		$_POST['cvv_number'] = (int)str_replace('-', '', $_POST['cvv_number']);
-		$sql1 = mysqli_query($con, "SELECT * FROM wallet_details where wallet_id = $wallet_id");
-		while($row1 = mysqli_fetch_array($sql1)){
-			$card = $row1['number'];
-			$cvv = $row1['cvv'];
-			if($card == $_POST['cc_number'] && $cvv==$_POST['cvv_number'])
-			$continue=1;
-			else
-				header("location:index.php");
-		}
-		}
-		else
-			$continue=1;
-}
 
+function distance($lat1, $lon1, $lat2, $lon2, $unit) {
+    if (($lat1 == $lat2) && ($lon1 == $lon2)) {
+      return 0;
+    }
+    else {
+      $theta = $lon1 - $lon2;
+      $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+      $dist = acos($dist);
+      $dist = rad2deg($dist);
+      $miles = $dist * 60 * 1.1515;
+      $unit = strtoupper($unit);
+  
+      if ($unit == "K") {
+        return ($miles * 1.609344);
+      } else if ($unit == "N") {
+        return ($miles * 0.8684);
+      } else {
+        return $miles;
+      }
+    }
+  }
 $result = mysqli_query($con, "SELECT * FROM users where id = $user_id");
 while($row = mysqli_fetch_array($result)){
 	$name = $row['name'];
 	$contact = $row['contact'];
 }
 
+$shopResult = mysqli_query($con, "SELECT * FROM users where id = ".$_POST['shopid']."");
+while($row = mysqli_fetch_array($shopResult)){
+	$shop_latitude = $row['latitude'];
+	$shop_longitude = $row['longitude'];
+}
 if($continue){
 ?>
 
@@ -92,10 +99,7 @@ if($continue){
                     <ul class="left">                      
                       <li><h1 class="logo-wrapper"><a href="index.php" class="brand-logo darken-1"><img src="images/materialize-logo.png" alt="logo"></a> <span class="logo-text">Logo</span></h1></li>
                     </ul>
-                    <ul class="right hide-on-med-and-down">                        
-                        <li><a href="#" class="waves-effect waves-block waves-light"><i class="mdi-editor-attach-money"><?php echo $balance;?></i></a>
-                        </li>
-                    </ul>					
+                    					
                 </div>
             </nav>
         </div>
@@ -233,13 +237,29 @@ if($continue){
                 <span>'.$value.' Pieces</span>
             </div>
             <div class="col s3">
-                <span>Rs. '.$price.'</span>
+                <span>&euro;  '.$price.'</span>
             </div>
         </div>
     </li>';
 		$total = $total + $price;
 	}
 	}
+    $dis = distance($_POST['address_latitude'], $_POST['address_longitude'], $shop_latitude, $shop_longitude, "M");
+    $dis = number_format((float)$dis, 2, '.', '');
+    $delivery_fee =ceil($dis*(float)DISTANCE_PER_PRICE);
+    echo '<li class="collection-item">
+        <div class="row">
+            <div class="col s7">
+                <p class="collections-title"> Delivery Fee. ('.$dis.' Miles) </p>
+            </div>
+            <div class="col s2">
+                <span>&nbsp;</span>
+            </div>
+            <div class="col s3">
+                <span><strong>&euro;  '.$delivery_fee.'</strong></span>
+            </div>
+        </div>
+    </li>';
     echo '<li class="collection-item">
         <div class="row">
             <div class="col s7">
@@ -249,27 +269,16 @@ if($continue){
                 <span>&nbsp;</span>
             </div>
             <div class="col s3">
-                <span><strong>Rs. '.$total.'</strong></span>
+                <span><strong>&euro;  '.($total+$delivery_fee).'</strong></span>
             </div>
         </div>
     </li>';
 	if(!empty($_POST['description']))
 		echo '<li class="collection-item avatar"><p><strong>Note: </strong>'.htmlspecialchars($_POST['description']).'</p></li>';
-	if($_POST['payment_type'] == 'Wallet')
-	echo '<div id="basic-collections" class="section">
-		<div class="row">
-			<div class="collection">
-				<a href="#" class="collection-item">
-					<div class="row"><div class="col s7">Current Balance</div><div class="col s3">'.$balance.'</div></div>
-				</a>
-				<a href="#" class="collection-item active">
-					<div class="row"><div class="col s7">Balance after purchase</div><div class="col s3">'.($balance-$total).'</div></div>
-				</a>
-			</div>
-		</div>
-	</div>';
+	
 ?>
 <form action="routers/order-router.php" method="post">
+    <input type="hidden" name="stripeToken" value="<?php echo $_POST['stripeToken'];?>">
 <?php
 foreach ($_POST as $key => $value)
 {
@@ -280,11 +289,16 @@ foreach ($_POST as $key => $value)
 ?>
 <input type="hidden" name="payment_type" value="<?php echo $_POST['payment_type'];?>">
 <input type="hidden" name="address" value="<?php echo htmlspecialchars($_POST['address']);?>">
+<input type="hidden" name="address_latitude" value="<?php echo $_POST['address_latitude'];?>">
+<input type="hidden" name="address_longitude" value="<?php echo $_POST['address_longitude'];?>">
+
+<input type="hidden" name="shopid" value="<?php echo $_POST['shopid']; ?>">
 <?php if (isset($_POST['description'])) { echo'<input type="hidden" name="description" value="'.htmlspecialchars($_POST['description']).'">';}?>
-<?php if($_POST['payment_type'] == 'Wallet') echo '<input type="hidden" name="balance" value="<?php echo ($balance-$total);?>">'; ?>
+<input type="hidden" name="delivery_fee" value="<?php echo $delivery_fee;?>">
 <input type="hidden" name="total" value="<?php echo $total;?>">
+
 <div class="input-field col s12">
-<button class="btn cyan waves-effect waves-light right" type="submit" name="action" <?php if($_POST['payment_type'] == 'Wallet') {if ($balance-$total < 0) {echo 'disabled'; }}?>>Confirm Order
+<button class="btn cyan waves-effect waves-light right" type="submit" name="action">Confirm Order
 <i class="mdi-content-send right"></i>
 </button>
 </div>
