@@ -3,7 +3,7 @@ include 'includes/config.php';
 
 include 'includes/mail.php';
 
-$email = "javedahmad193@gmail.com";
+$email = "gargledelivery@gmail.com";
 $subject='test';
 $message = 'this is a message';
 

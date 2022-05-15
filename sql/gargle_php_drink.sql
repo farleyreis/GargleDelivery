@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `fiverr_php_drink`
+-- Database: `gargle_php_drink`
 --
 
 -- --------------------------------------------------------
